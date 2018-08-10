@@ -12,7 +12,7 @@ import { PriceLevel } from "../models/PriceLevel";
  * about the exchange to clients. This watcher lets you create a listener
  * function to handle updates, and a subscription function to choose which
  * channels you wish to get updates on.
- * 
+ *
  * See https://docs.ddex.io/#websocket
  */
 export class HydroWatcher {
@@ -26,7 +26,7 @@ export class HydroWatcher {
    * Initialize a new watcher with a set of listener functions that will
    * be called when a message of that type is received. The watcher will
    * not connect to the server until you subscribe to at least one channel.
-   * 
+   *
    * @param listener Object containing the functions to handle the updates you care about
    */
   constructor(listener: HydroListener) {
@@ -36,9 +36,9 @@ export class HydroWatcher {
   /**
    * Subscribe to a channel and begin receiving updates from the exchange
    * for a set of market ids
-   * 
+   *
    * See https://docs.ddex.io/#subscribe
-   * 
+   *
    * @param channel The name of the channel you want to subscribe to
    * @param marketIds A list of market ids you want updates for
    */
@@ -50,9 +50,9 @@ export class HydroWatcher {
   /**
    * Unsubscribe to stop receiving updates from the exchange for a particular
    * channel/market ids
-   * 
+   *
    * See https://docs.ddex.io/#unsubscribe
-   * 
+   *
    * @param channel The name of the channel you want to unsubscribe from
    * @param marketIds A list of market ids you no longer want updates for
    */
@@ -89,7 +89,7 @@ export class HydroWatcher {
 
   private receiveMessage(message: string) {
     if (!this.listener) { return }
-    
+
     const json = JSON.parse(message)
     switch(json.type) {
       case "subscriptions":
@@ -104,7 +104,7 @@ export class HydroWatcher {
       case "level2OrderbookUpdate":
         return json.changes && json.changes.forEach((change: any) => {
           this.listener.orderbookUpdate &&
-            this.listener.orderbookUpdate(change.side, new PriceLevel(change))
+            this.listener.orderbookUpdate(change.side, new PriceLevel(change), change)
         })
       case "level3OrderbookSnapshot":
         return this.listener.fullSnapshot &&
@@ -166,7 +166,7 @@ export interface HydroListener {
    * Received when subscribed to the 'orderbook' channel and there
    * are changes to the orderbook
    */
-  orderbookUpdate?: (side: Side, priceLevel: PriceLevel) => void
+  orderbookUpdate?: (side: Side, priceLevel: PriceLevel, message: any) => void
 
   /**
    * Received when subscribed to the 'full' channel right after
@@ -179,7 +179,7 @@ export interface HydroListener {
    * has been created
    */
   orderReceived?: (order: Order, sequence: number, time: Date) => void
-  
+
   /**
    * Received when subscribed to the 'full' channel and a new order
    * has been created, but not immediately fulfilled
