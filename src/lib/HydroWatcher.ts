@@ -104,7 +104,7 @@ export class HydroWatcher {
       case "level2OrderbookUpdate":
         return json.changes && json.changes.forEach((change: any) => {
           this.listener.orderbookUpdate &&
-            this.listener.orderbookUpdate(change.side, new PriceLevel(change), change)
+            this.listener.orderbookUpdate(change.side, new PriceLevel(change), json)
         })
       case "level3OrderbookSnapshot":
         return this.listener.fullSnapshot &&
